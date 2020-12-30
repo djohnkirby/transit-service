@@ -1,0 +1,4 @@
+.bsp/
+.idea/
+gtfs-parser/project/target/
+target/
