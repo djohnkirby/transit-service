@@ -4,6 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import handlers.ApiHandler;
 
 /**
  * Java entrypoint for the API Gateway Lambda function
@@ -12,7 +13,7 @@ public class ApiGatewayProxyHandler implements RequestHandler<APIGatewayProxyReq
 
     /**
      * Handle a Lambda request via the API Gateway
-     * @param requestEvent the HTTP request
+     * @param requestEvent the HTTP requeAst
      * @param context info about this lambda function & invocation
      * @return an HTTP response
      */

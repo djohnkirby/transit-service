@@ -2,31 +2,28 @@ AWSTemplateFormatVersion: '2010-09-09'
 
 Transform: AWS::Serverless-2016-10-31
 
-Description: >-
-  A SAM CLI template for a single-endpoint Hello World Lambda function in Scala
-
 Resources:
-  HelloScalaFunction:
+  TransitServiceFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: HelloScala
+      FunctionName: TransitService
       Description: A simple AWS Lambda function in Scala
       Runtime: java8
       Handler: lambda.ApiGatewayProxyHandler
-      CodeUri: target/scala-2.13/hello-scala.jar
+      CodeUri: target/scala-2.13/transit-service.jar
       MemorySize: 512
       Timeout: 15
       Environment:
         Variables:
-          env: staging
+          env: prod
       Events:
-        Hello:
+        GetTransitDepartures:
           Type: Api
           Properties:
-            Path: /hello/{name}
+            Path: /default/transitService
             Method: GET
         
 Outputs:
     ApiURL:
       Description: "API endpoint URL for Prod environment"
-      Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/{name}"
+      Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/default/transitService"
