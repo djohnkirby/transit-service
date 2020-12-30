@@ -1,4 +1,7 @@
 .bsp/
 .idea/
-gtfs-parser/project/target/
-target/
+gtfs-parser/
+target/*
+project/target/
+project/target/*
+project/target
