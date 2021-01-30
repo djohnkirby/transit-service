@@ -5,27 +5,26 @@ import java.time.LocalTime
 import gtfs.models._
 
 /**
- * Reads GTFS data from .txt files
- *
- * @param dir directory containing the files
- */
+  * Reads GTFS data from .txt files
+  *
+  * @param dir directory containing the files
+  */
 //DanielTODO: fix the missing stuff in this file
-class GtfsFileReader(dir:String) extends GtfsReader {
-  override def getStops = {
+class GtfsFileReader(dir: String) extends GtfsReader {
+
+  override def getStops =
     for (s <- CsvParser.fromPath(dir + "/stops.txt"))
-    yield {
-      Stop(
-        stop_id = s("stop_id"),
-        stop_name = s("stop_name"),
-        stop_desc = s("stop_desc"),
-        stop_lat = s("stop_lat").toDouble,
-        stop_lon = s("stop_lon").toDouble
-      )
-    }
-  }
+      yield {
+        Stop(
+          stop_id = s("stop_id"),
+          stop_name = s("stop_name"),
+          stop_desc = s("stop_desc"),
+          stop_lat = s("stop_lat").toDouble,
+          stop_lon = s("stop_lon").toDouble
+        )
+      }
 
-
-/*  override def getRoutes = {
+  /*  override def getRoutes = {
     for (r <- CsvParser.fromPath(dir + "/routes.txt"))
     yield {
       Route(
@@ -42,24 +41,20 @@ class GtfsFileReader(dir:String) extends GtfsReader {
     }
   }*/
 
-
-  override def getStopTimes = {
+  override def getStopTimes =
     for (s <- CsvParser.fromPath(dir + "/stop_times.txt"))
-    yield {
-      StopTimeRec(
-        stop_id = s("stop_id"),
-        trip_id = s("trip_id"),
-        stop_sequence = s("stop_sequence").toInt,
-        arrival_time = LocalTime.parse(s("arrival_time")),
-        departure_time = LocalTime.parse(s("departure_time")),
-        shape_dist_traveled = s("shape_dist_traveled").toDouble,
-        stop = null
-      )
-    }
-  }
-
-
- /* override def getTrips = {
+      yield {
+        StopTimeRec(
+          stop_id = s("stop_id"),
+          trip_id = s("trip_id"),
+          stop_sequence = s("stop_sequence").toInt,
+          arrival_time = LocalTime.parse(s("arrival_time")),
+          departure_time = LocalTime.parse(s("departure_time")),
+          shape_dist_traveled = s("shape_dist_traveled").toDouble,
+          stop = null
+        )
+      }
+  /* override def getTrips = {
     for (t <- CsvParser.fromPath(dir + "/trips.txt"))
     yield {
       TripRec(
