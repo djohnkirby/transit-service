@@ -12,6 +12,23 @@ import gtfs.models._
 //DanielTODO: fix the missing stuff in this file
 class GtfsFileReader(dir: String) extends GtfsReader {
 
+  val formatTwoDigits = "%02d"
+
+  private def getHour(time_string: String): String = time_string.substring(0, 2)
+
+  private def isAfterMidnight(time_string: String): Boolean = getHour(time_string).toInt >= 24
+
+  private def normalizeAfterMidnight(time_string: String): String = {
+    val hour = getHour(time_string)
+    time_string.replaceFirst(hour, formatTwoDigits.format(hour.toInt % 24))
+  }
+
+  private def parseTimeAndCorrectForAfterMidnight(time_string: String): (Option[LocalTime], Boolean) =
+    if (time_string.isEmpty) //untimed stop
+      (None, false)
+    else //normal stop
+      (Some(LocalTime.parse(normalizeAfterMidnight(time_string))), isAfterMidnight(time_string))
+
   override def getStops =
     for (s <- CsvParser.fromPath(dir + "/stops.txt"))
       yield {
@@ -44,14 +61,22 @@ class GtfsFileReader(dir: String) extends GtfsReader {
   override def getStopTimes =
     for (s <- CsvParser.fromPath(dir + "/stop_times.txt"))
       yield {
+
+        val arrival_time_string   = s("arrival_time")
+        val departure_time_string = s("departure_time")
+
+        val (arrival_time, is_tomorrow) = parseTimeAndCorrectForAfterMidnight(arrival_time_string)
+        val (departure_time, _)         = parseTimeAndCorrectForAfterMidnight(s("departure_time"))
+
         StopTimeRec(
           stop_id = s("stop_id"),
           trip_id = s("trip_id"),
           stop_sequence = s("stop_sequence").toInt,
-          arrival_time = LocalTime.parse(s("arrival_time")),
-          departure_time = LocalTime.parse(s("departure_time")),
+          arrival_time = arrival_time,
+          departure_time = departure_time,
           shape_dist_traveled = s("shape_dist_traveled").toDouble,
-          stop = null
+          stop = null,
+          is_tomorrow = is_tomorrow
         )
       }
   /* override def getTrips = {

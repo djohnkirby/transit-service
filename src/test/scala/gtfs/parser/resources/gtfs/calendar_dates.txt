@@ -1,0 +1,15 @@
+service_id,date,holiday_name,exception_type
+c_20803_b_none_d_0,20211111,Veterans Day,1
+c_20803_b_none_d_0,20211011,Columbus Day,1
+c_20803_b_none_d_0,20210906,Labor Day,1
+c_20803_b_none_d_0,20210704,Independence Day,1
+c_20803_b_none_d_0,20210531,Memorial Day,1
+c_20803_b_none_d_0,20210215,Presidents Day,1
+c_20803_b_none_d_0,20210212,Lincoln Birthday,1
+c_20460_b_27412_d_31,20211111,Veterans Day,2
+c_20460_b_27412_d_31,20211011,Columbus Day,2
+c_20460_b_27412_d_31,20210906,Labor Day,2
+c_20460_b_27412_d_31,20210531,Memorial Day,2
+c_20460_b_27412_d_31,20210215,Presidents Day,2
+c_20460_b_27412_d_31,20210212,Lincoln Birthday,2
+c_19861_b_26688_d_64,20210704,Independence Day,2

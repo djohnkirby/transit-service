@@ -7,7 +7,8 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core"   % "1.2.0",
   "com.amazonaws" % "aws-java-sdk-s3"        % "1.11.945",
   "commons-io"    % "commons-io"             % "2.8.0",
-  "io.spray"      %% "spray-json"            % "1.3.6"
+  "io.spray"      %% "spray-json"            % "1.3.6",
+  "org.scalatest" %% "scalatest"             % "3.2.2" % "test"
 )
 
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint")

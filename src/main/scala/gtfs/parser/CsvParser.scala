@@ -1,25 +1,25 @@
 package gtfs.parser
 
-import java.io.{FileInputStream, InputStreamReader, BufferedReader}
+import java.io.{BufferedReader, FileInputStream, InputStreamReader}
 import java.nio.charset.Charset
 
 class CsvParser[T](
-    private val reader:BufferedReader
-  ) extends Iterator[String=>String] {
+  private val reader: BufferedReader
+) extends Iterator[String => String] {
 
   def parse(s: String): Array[String] =
     CsvParser.lineRegex.findAllIn(s).matchData.map(_.subgroups).flatten.toArray
 
   val head = parse(reader.readLine())
-  val idx = head.zip(0 until head.length).toMap
+  val idx  = head.zip(0 until head.length).toMap
 
-  var line: String = null
-  var rec:Array[String] = null
+  var line: String       = null
+  var rec: Array[String] = null
 
-  val getCol: String=>String = {name: String =>
+  val getCol: String => String = { name: String =>
     idx.get(name) match {
       case Some(index) => rec(index)
-      case _ => ""
+      case _           => ""
     }
   }
 
@@ -36,15 +36,10 @@ class CsvParser[T](
 
 object CsvParser {
   val lineRegex = """(?:^|,)"?((?<=")[^"]*|[^,"]*)"?(?=,|$)""".r
-  def fromPath[T](path:String) = {
+
+  def fromPath[T](path: String) =
     new CsvParser(
-      new BufferedReader(
-        new InputStreamReader(
-          new FileInputStream(path),
-            Charset.forName("UTF-8")))
+      new BufferedReader(new InputStreamReader(new FileInputStream(path), Charset.forName("UTF-8")))
     )
-  }
 
 }
-
-

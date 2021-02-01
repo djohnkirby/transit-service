@@ -1,0 +1,71 @@
+stop_id,stop_city
+26722,Manhattan Community Board 2
+782495,Jersey City
+781732,Springfield
+781723,Springfield
+26723,Manhattan Community Board 5
+782492,Harrison
+782506,Manhattan Community Board 2
+781736,Springfield
+781722,Springfield
+782505,Manhattan Community Board 2
+2615485,New York
+26727,Jersey City
+781733,Springfield
+782499,Hoboken
+26731,Jersey City
+781728,Springfield
+781741,Springfield
+782503,New York
+26733,Newark
+782490,Newark
+782508,Manhattan Community Board 5
+781735,Springfield
+2615488,New York
+26729,Harrison
+782501,Jersey City
+781719,Springfield
+2324945,Springfield
+781740,Springfield
+782498,Jersey City
+781721,Springfield
+781730,Springfield
+782491,Newark
+781720,Springfield
+781763,Springfield
+782504,New York
+26734,Manhattan Community Board 1
+26732,Jersey City
+781724,Springfield
+26725,Manhattan Community Board 2
+782497,Jersey City
+782493,Harrison
+782511,Manhattan Community Board 5
+781738,Springfield
+781726,Springfield
+781718,Springfield
+781734,Springfield
+781727,Springfield
+781739,Springfield
+794724,Springfield
+782500,Hoboken
+2629087,New York
+2324934,Springfield
+782512,Manhattan Community Board 1
+782507,Manhattan Community Board 5
+781717,Springfield
+781725,Springfield
+782496,Jersey City
+782494,Jersey City
+781731,Springfield
+26724,Manhattan Community Board 5
+781729,Springfield
+782509,Manhattan Community Board 5
+26726,New York
+781716,Springfield
+782510,Manhattan Community Board 5
+781715,Springfield
+781737,Springfield
+26730,Hoboken
+2324931,New York
+26728,Jersey City
