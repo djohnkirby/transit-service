@@ -76,20 +76,19 @@ class GtfsFileReader(dir: String) extends GtfsReader {
           days_from_now = days_from_now
         )
       }
-  /* override def getTrips = {
+  override def getTrips =
     for (t <- CsvParser.fromPath(dir + "/trips.txt"))
-    yield {
-      TripRec(
-        trip_id = t("trip_id"),
-        service_id = t("service_id"),
-        route_id = t("route_id"),
-        trip_headsign = t("trip_headsign"),
-        stopTimes = Nil
-      )
-    }
-  }
+      yield {
+        TripRec(
+          trip_id = t("trip_id"),
+          service_id = t("service_id"),
+          route_id = t("route_id"),
+          trip_headsign = t("trip_headsign"),
+          stopTimes = Nil
+        )
+      }
 
-
+  /*
   def getCalendar = {
     for (c <- CsvParser.fromPath(dir + "/calendar.txt"))
     yield {

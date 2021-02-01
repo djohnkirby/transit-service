@@ -2,8 +2,8 @@ package gtfs.models
 
 import scala.math.{pow, sqrt}
 
-case class Stop (
-  stop_id: String, //StopId, //DanielTODO
+case class Stop(
+  stop_id: String,
   stop_name: String,
   stop_desc: String,
   stop_lat: Double,

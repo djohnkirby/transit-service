@@ -18,4 +18,10 @@ class GtfsFileReaderSpec extends AnyFlatSpec {
     stops.size shouldBe 70
   }
 
+  "GtfsFileReader" should "successfully parse trips.txt" in {
+    val trips = gtfsFileReader.getTrips
+
+    trips.size shouldBe 1990
+  }
+
 }

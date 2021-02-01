@@ -5,7 +5,7 @@ import gtfs.models._
 trait GtfsReader {
   def getStops: Iterator[Stop]
   def getStopTimes: Iterator[StopTimeRec]
-  //def getTrips: Iterator[TripRec]
+  def getTrips: Iterator[TripRec]
   //def getRoutes: Iterator[Route]
   //def getFrequencies: Iterator[Frequency]
   //def getCalendar: Iterator[CalendarRec]
