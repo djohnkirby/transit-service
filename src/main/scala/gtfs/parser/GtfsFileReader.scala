@@ -12,22 +12,22 @@ import gtfs.models._
 //DanielTODO: fix the missing stuff in this file
 class GtfsFileReader(dir: String) extends GtfsReader {
 
-  val formatTwoDigits = "%02d"
+  final val formatTwoDigits = "%02d"
 
   private def getHour(time_string: String): String = time_string.substring(0, 2)
 
-  private def isAfterMidnight(time_string: String): Boolean = getHour(time_string).toInt >= 24
+  private def getNumberOfDaysFromNow(time_string: String): Int = getHour(time_string).toInt / 24
 
   private def normalizeAfterMidnight(time_string: String): String = {
     val hour = getHour(time_string)
     time_string.replaceFirst(hour, formatTwoDigits.format(hour.toInt % 24))
   }
 
-  private def parseTimeAndCorrectForAfterMidnight(time_string: String): (Option[LocalTime], Boolean) =
+  private def parseTimeAndCorrectForAfterMidnight(time_string: String): (Option[LocalTime], Int) =
     if (time_string.isEmpty) //untimed stop
-      (None, false)
+      (None, 0)
     else //normal stop
-      (Some(LocalTime.parse(normalizeAfterMidnight(time_string))), isAfterMidnight(time_string))
+      (Some(LocalTime.parse(normalizeAfterMidnight(time_string))), getNumberOfDaysFromNow(time_string))
 
   override def getStops =
     for (s <- CsvParser.fromPath(dir + "/stops.txt"))
@@ -62,11 +62,8 @@ class GtfsFileReader(dir: String) extends GtfsReader {
     for (s <- CsvParser.fromPath(dir + "/stop_times.txt"))
       yield {
 
-        val arrival_time_string   = s("arrival_time")
-        val departure_time_string = s("departure_time")
-
-        val (arrival_time, is_tomorrow) = parseTimeAndCorrectForAfterMidnight(arrival_time_string)
-        val (departure_time, _)         = parseTimeAndCorrectForAfterMidnight(s("departure_time"))
+        val (arrival_time, _)               = parseTimeAndCorrectForAfterMidnight(s("arrival_time"))
+        val (departure_time, days_from_now) = parseTimeAndCorrectForAfterMidnight(s("departure_time"))
 
         StopTimeRec(
           stop_id = s("stop_id"),
@@ -76,7 +73,7 @@ class GtfsFileReader(dir: String) extends GtfsReader {
           departure_time = departure_time,
           shape_dist_traveled = s("shape_dist_traveled").toDouble,
           stop = null,
-          is_tomorrow = is_tomorrow
+          days_from_now = days_from_now
         )
       }
   /* override def getTrips = {
