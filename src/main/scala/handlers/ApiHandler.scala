@@ -6,15 +6,12 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
-import gtfs.{HeadSign, ScheduleFinder, Station}
-import gtfs.models.StopTime
 import gtfs.parser.GtfsFileReader
+import gtfs.{ScheduleFinder, Station}
 import org.apache.commons.io.FileUtils
 import spray.json._
 
 import java.io.File
-import java.time.temporal.ChronoUnit
-import java.time.{LocalDate, LocalDateTime, Period}
 import scala.jdk.CollectionConverters._
 
 /**
@@ -50,7 +47,7 @@ object ApiHandler {
     val awsCredentials = new BasicAWSCredentials(
       "",
       ""
-    )
+    ) //DANIELTODO: DO NOT COMMIT THIS!!!!!!!
 
     val amazonS3Client: AmazonS3 = AmazonS3ClientBuilder
       .standard()
@@ -58,18 +55,6 @@ object ApiHandler {
       .withRegion(Regions.US_EAST_1)
       .build()
 
-    downloadFilesFromS3(amazonS3Client)
-
-    val scheduleFinder = new ScheduleFinder(
-      new ScheduleFinder.Dependencies {
-        override val gtfsfileReader: GtfsFileReader = new GtfsFileReader(".")
-      }
-    )
-
-    scheduleFinder.findSchedule(stationIds, walkTime)
-  }
-
-  private def downloadFilesFromS3(amazonS3Client: AmazonS3) = {
     FileUtils.copyInputStreamToFile(
       amazonS3Client.getObject("transitservice-data", "stop_times.txt").getObjectContent,
       new File("stop_times.txt")
@@ -94,6 +79,14 @@ object ApiHandler {
       amazonS3Client.getObject("transitservice-data", "calendar_dates.txt").getObjectContent,
       new File("calendar_dates.txt")
     )
+
+    val scheduleFinder = new ScheduleFinder(
+      new ScheduleFinder.Dependencies {
+        override val gtfsfileReader: GtfsFileReader = new GtfsFileReader(".")
+      }
+    )
+
+    scheduleFinder.findSchedule(stationIds, walkTime)
   }
 
   case class Response(body: String, headers: Map[String, String], statusCode: Int = 200) {
