@@ -6,7 +6,7 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
-import gtfs.{HeadSign, Station}
+import gtfs.{HeadSign, ScheduleFinder, Station}
 import gtfs.models.StopTime
 import gtfs.parser.GtfsFileReader
 import org.apache.commons.io.FileUtils
@@ -29,7 +29,6 @@ object ApiHandler {
     * @return the HTTP response
     */
   def handle(request: APIGatewayProxyRequestEvent, context: Context): Response = {
-    //DanielTODO: implement
     val parameters = request.getQueryStringParameters
     val walkTime   = parameters.get("walkTime").toLong
     val station    = Station.withName(parameters.get("station"))
@@ -40,8 +39,7 @@ object ApiHandler {
   }
 
   private def getFrameMessage(station: Station.Value, walkTime: Long): String = {
-    val today = LocalDate.now()
-    val now   = LocalDateTime.now()
+
     //I have a station. I know what time it is. Now I need to find out
     //what trains are leaving soon and where they're going.
     val stationIds = Station.stationIdMap.get(station).getOrElse(Set.empty)
@@ -60,6 +58,18 @@ object ApiHandler {
       .withRegion(Regions.US_EAST_1)
       .build()
 
+    downloadFilesFromS3(amazonS3Client)
+
+    val scheduleFinder = new ScheduleFinder(
+      new ScheduleFinder.Dependencies {
+        override val gtfsfileReader: GtfsFileReader = new GtfsFileReader(".")
+      }
+    )
+
+    scheduleFinder.findSchedule(stationIds, walkTime)
+  }
+
+  private def downloadFilesFromS3(amazonS3Client: AmazonS3) = {
     FileUtils.copyInputStreamToFile(
       amazonS3Client.getObject("transitservice-data", "stop_times.txt").getObjectContent,
       new File("stop_times.txt")
@@ -75,48 +85,15 @@ object ApiHandler {
       new File("trips.txt")
     )
 
-    val gtfsFileReader = new GtfsFileReader(".")
-
-    var destinationsToTimesMap: Map[String, Set[Long]] = Map.empty
-
-    val trips = gtfsFileReader.getTrips
-
-    val stopTimes: Iterator[StopTime] = gtfsFileReader.getStopTimes
-      .map(_.toStopTime(today, walkTime))
-      .filter(stopTime => stationIds.contains(stopTime.stop_id))
-      .filter(
-        stopTime =>
-          stopTime.departure
-            .exists(departureTime => departureTime.isAfter(now) && departureTime.isBefore(now.plusHours(2)))
-      )
-
-    stopTimes.foreach(
-      stopTime => {
-        trips
-          .filter(_.trip_id == stopTime.trip_id)
-          .toList
-          .headOption
-          .foreach(tripRec => {
-            val shortHeadSign = HeadSign.headSignToShortHeadsignMap(tripRec.trip_headsign)
-            val minutes       = ChronoUnit.MINUTES.between(now, stopTime.departure.get)
-            val set           = destinationsToTimesMap(shortHeadSign)
-            destinationsToTimesMap += (shortHeadSign -> (set ++ minutes))
-          })
-      }
+    FileUtils.copyInputStreamToFile(
+      amazonS3Client.getObject("transitservice-data", "calendar.txt").getObjectContent,
+      new File("calendar.txt")
     )
 
-    destinationsToTimesMap.keys
-      .map(
-        shortHeadSign => {
-          shortHeadSign + " : " + destinationsToTimesMap(shortHeadSign).toList.sorted
-            .map(_.toString)
-            .reduce((acc, str) => s"$acc, $str")
-        }
-      )
-      .toList
-      .reduce(
-        (a, b) => s"$a, $b"
-      )
+    FileUtils.copyInputStreamToFile(
+      amazonS3Client.getObject("transitservice-data", "calendar_dates.txt").getObjectContent,
+      new File("calendar_dates.txt")
+    )
   }
 
   case class Response(body: String, headers: Map[String, String], statusCode: Int = 200) {

@@ -24,4 +24,16 @@ class GtfsFileReaderSpec extends AnyFlatSpec {
     trips.size shouldBe 1990
   }
 
+  "GtfsFileReader" should "successfully parse calendar.txt" in {
+    val calendar = gtfsFileReader.getCalendar
+
+    calendar.size shouldBe 4
+  }
+
+  "GtfsFileReader" should "successfully parse calendar_dates.txt" in {
+    val calendarDates = gtfsFileReader.getCalendarDates
+
+    calendarDates.size shouldBe 14
+  }
+
 }

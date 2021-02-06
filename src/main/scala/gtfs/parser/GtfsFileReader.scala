@@ -1,8 +1,9 @@
 package gtfs.parser
 
-import java.time.LocalTime
-
+import java.time.{LocalDate, LocalTime}
 import gtfs.models._
+
+import java.time.format.DateTimeFormatter
 
 /**
   * Reads GTFS data from .txt files
@@ -88,40 +89,36 @@ class GtfsFileReader(dir: String) extends GtfsReader {
         )
       }
 
-  /*
-  def getCalendar = {
+  def getCalendar =
     for (c <- CsvParser.fromPath(dir + "/calendar.txt"))
-    yield {
-      CalendarRec(
-        service_id = c("service_id"),
-        start_date = c("start_date"),
-        end_date = c("end_date"),
-        week = Array(
-          c("monday") == "1",
-          c("tuesday") == "1",
-          c("wednesday") == "1",
-          c("thursday") == "1",
-          c("friday") == "1",
-          c("saturday") == "1",
-          c("sunday") == "1"
+      yield {
+        CalendarRec(
+          service_id = c("service_id"),
+          start_date = LocalDate.parse(c("start_date"), DateTimeFormatter.BASIC_ISO_DATE),
+          end_date = LocalDate.parse(c("end_date"), DateTimeFormatter.BASIC_ISO_DATE),
+          week = Array(
+            c("monday") == "1",
+            c("tuesday") == "1",
+            c("wednesday") == "1",
+            c("thursday") == "1",
+            c("friday") == "1",
+            c("saturday") == "1",
+            c("sunday") == "1"
+          )
         )
-      )
-    }
-  }
+      }
 
-
-  def getCalendarDates = {
+  def getCalendarDates =
     for (c <- CsvParser.fromPath(dir + "/calendar_dates.txt"))
-    yield {
-      CalendarDateRec(
-        service_id = c("service_id"),
-        date = c("date"),
-        exception = if (c("exception_type") == "1") 'Add else 'Remove
-      )
-    }
-  } //DanielTODO: gonna need this
+      yield {
+        CalendarDateRec(
+          service_id = c("service_id"),
+          date = LocalDate.parse(c("date"), DateTimeFormatter.BASIC_ISO_DATE),
+          exception = if (c("exception_type") == "1") Symbol("Add") else Symbol("Remove")
+        )
+      }
 
-
+  /*
   override def getFrequencies = {
     for (f <- CsvParser.fromPath(dir + "/frequencies.txt"))
     yield {
