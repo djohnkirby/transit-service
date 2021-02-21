@@ -65,11 +65,15 @@ class GtfsFileReader(dir: String) extends GtfsReader {
 
         val (arrival_time, _)               = parseTimeAndCorrectForAfterMidnight(s("arrival_time"))
         val (departure_time, days_from_now) = parseTimeAndCorrectForAfterMidnight(s("departure_time"))
+        val stop_sequence = s("stop_sequence") match {
+          case ""     => None
+          case string => Some(string.toInt)
+        }
 
         StopTimeRec(
           stop_id = s("stop_id"),
           trip_id = s("trip_id"),
-          stop_sequence = s("stop_sequence").toInt,
+          stop_sequence = stop_sequence,
           arrival_time = arrival_time,
           departure_time = departure_time,
           shape_dist_traveled = s("shape_dist_traveled").toDouble,

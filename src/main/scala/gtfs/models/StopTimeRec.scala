@@ -5,7 +5,7 @@ import java.time.{LocalDate, LocalDateTime, LocalTime}
 case class StopTimeRec(
   stop_id: String,
   trip_id: String,
-  stop_sequence: Int,
+  stop_sequence: Option[Int],
   arrival_time: Option[LocalTime],
   departure_time: Option[LocalTime],
   shape_dist_traveled: Double = 0,

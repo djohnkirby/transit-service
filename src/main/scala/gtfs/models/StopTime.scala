@@ -14,8 +14,8 @@ class StopTime(
   val arrival: Option[LocalDateTime],
   val departure: Option[LocalDateTime]
 ) {
-  def stop: Stop      = rec.stop
-  def stop_id: String = rec.stop_id
-  def trip_id: String = rec.trip_id
-  def sequence: Int   = rec.stop_sequence
+  def stop: Stop            = rec.stop
+  def stop_id: String       = rec.stop_id
+  def trip_id: String       = rec.trip_id
+  def sequence: Option[Int] = rec.stop_sequence
 }

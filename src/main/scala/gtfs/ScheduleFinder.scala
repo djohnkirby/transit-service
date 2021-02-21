@@ -1,7 +1,7 @@
 package gtfs
 
 import gtfs.ScheduleFinder.Dependencies
-import gtfs.models.{StopTime, StopTimeRec}
+import gtfs.models.{Calendar, StopTime}
 import gtfs.parser.GtfsFileReader
 
 import java.time.temporal.ChronoUnit
@@ -12,17 +12,57 @@ class ScheduleFinder(dependencies: Dependencies) {
   val now            = LocalDateTime.now()
   val gtfsFileReader = dependencies.gtfsfileReader
 
-  val stopTimeRecs: Iterator[StopTimeRec] = gtfsFileReader.getStopTimes
-  val trips                               = gtfsFileReader.getTrips
-  val calendar                            = gtfsFileReader.getCalendar
+  val stopTimeRecs       = gtfsFileReader.getStopTimes.toList
+  val trips              = gtfsFileReader.getTrips.toList
+  val calendar           = gtfsFileReader.getCalendar.toList
+  val calendarExceptions = gtfsFileReader.getCalendarDates.toList
+  val services           = new Calendar(calendar.to(Iterable), calendarExceptions.to(Iterable))
 
-  var destinationsToTimesMap: Map[String, Set[Long]] = Map.empty //Might wanna move this
+  def isThisStation(stopTime: StopTime, stationIds: Set[String]) =
+    stationIds.contains(stopTime.stop_id)
 
-  def findSchedule(stationIds: Set[String], walkTime: Long): String =
+  def isUpcomingStopTime(stopTime: StopTime) =
+    stopTime.departure
+      .exists(departureTime => departureTime.isAfter(now) && departureTime.isBefore(now.plusHours(2)))
+
+  def isRunningToday(stopTime: StopTime) = {
+    val date = LocalDate.from(stopTime.departure.getOrElse(today))
+    trips
+      .find(_.trip_id == stopTime.trip_id)
+      .fold(false)(
+        tripRec => services.getServiceFor(date).contains(tripRec.service_id)
+      )
+  }
+
+  def upcomingDeparturesMap(stopTimes: List[StopTime]) = {
+    var destinationsToTimesMap: Map[String, Set[Long]] = Map.empty
+    stopTimes
+      .foreach(
+        stopTime => {
+          trips
+            .find(_.trip_id == stopTime.trip_id)
+            .foreach(tripRec => {
+              val shortHeadSign = HeadSign.headSignToShortHeadsignMap(tripRec.trip_headsign) //TODO: handle not finding this
+              val minutes       = ChronoUnit.MINUTES.between(now, stopTime.departure.get)
+              val set =
+                if (destinationsToTimesMap.contains(shortHeadSign))
+                  destinationsToTimesMap(shortHeadSign)
+                else
+                  Set.empty[Long]
+              val newSet = set + minutes
+              destinationsToTimesMap += (shortHeadSign -> newSet)
+            })
+        }
+      )
+
+    destinationsToTimesMap
+  }
+
+  def reduceUpcomingDeparturesMapToFrameText(destinationsToTimesMap: Map[String, Set[Long]]) =
     destinationsToTimesMap.keys
       .map(
         shortHeadSign => {
-          shortHeadSign + " : " + destinationsToTimesMap(shortHeadSign).toList.sorted
+          shortHeadSign + ": " + destinationsToTimesMap(shortHeadSign).toList.sorted
             .map(_.toString)
             .reduce((acc, str) => s"$acc, $str")
         }
@@ -32,31 +72,18 @@ class ScheduleFinder(dependencies: Dependencies) {
         (a, b) => s"$a, $b"
       )
 
-  //get upcoming stop times for a particular station
-  def stopTimes(walkTime: Long, stationIds: Set[String]) =
-    stopTimeRecs
+  def findSchedule(stationIds: Set[String], walkTime: Long): String = {
+    val stopTimes = stopTimeRecs
       .map(_.toStopTime(today, walkTime))
-      .filter(stopTime => stationIds.contains(stopTime.stop_id))
-      .filter(
-        stopTime =>
-          stopTime.departure
-            .exists(departureTime => departureTime.isAfter(now) && departureTime.isBefore(now.plusHours(2)))
-      ) //DanielTODO: break these down into smaller and smaller methods so we can get them under test
-      .foreach(
-        stopTime => {
-          trips
-            .filter(_.trip_id == stopTime.trip_id)
-            .toList
-            .headOption
-            .foreach(tripRec => {
-              val shortHeadSign = HeadSign.headSignToShortHeadsignMap(tripRec.trip_headsign)
-              val minutes       = ChronoUnit.MINUTES.between(now, stopTime.departure.get)
-              val set           = destinationsToTimesMap(shortHeadSign)
-              val newSet        = set + minutes
-              destinationsToTimesMap += (shortHeadSign -> newSet)
-            })
-        }
-      )
+
+    val upcomingStopTimesForThisStop = stopTimes
+      .filter(stopTime => isThisStation(stopTime, stationIds))
+      .filter(isRunningToday)
+      .filter(isUpcomingStopTime)
+
+    reduceUpcomingDeparturesMapToFrameText(upcomingDeparturesMap(upcomingStopTimesForThisStop))
+  }
+
 }
 
 object ScheduleFinder {
