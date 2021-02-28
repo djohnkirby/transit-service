@@ -27,7 +27,7 @@ class ScheduleFinderSpec extends AnyFlatSpec with GtfsFixture with MockitoSugar 
 
   it should "return true when the stop time's station is one provided" in {
     scheduleFinder.isThisStation(
-      generateStopTimeRecs(10).head.toStopTime(LocalDate.now()),
+      generateStopTimeRecs(10).tail.head.toStopTime(LocalDate.now()),
       stationIds
     ) shouldBe true
   }
@@ -62,23 +62,6 @@ class ScheduleFinderSpec extends AnyFlatSpec with GtfsFixture with MockitoSugar 
   }
 
   behavior of "isRunningToday"
-
-  val today = LocalDate.now()
-
-  val nextWeekday = today.getDayOfWeek match {
-    case DayOfWeek.SATURDAY => today.plusDays(2)
-    case DayOfWeek.SUNDAY   => today.plusDays(1)
-    case _                  => today
-  }
-
-  val nextWeekendDay = today.getDayOfWeek match {
-    case DayOfWeek.MONDAY    => today.plusDays(5)
-    case DayOfWeek.TUESDAY   => today.plusDays(4)
-    case DayOfWeek.WEDNESDAY => today.plusDays(3)
-    case DayOfWeek.THURSDAY  => today.plusDays(2)
-    case DayOfWeek.FRIDAY    => today.plusDays(1)
-    case _                   => today
-  }
 
   it should "return true when it's a weekday and this service is running" in {
     scheduleFinder.isRunningToday(generateStopTimeRecs(10).head.toStopTime(nextWeekday)) shouldBe true

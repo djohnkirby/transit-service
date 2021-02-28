@@ -34,7 +34,7 @@ class ScheduleFinder(dependencies: Dependencies) {
       )
   }
 
-  def upcomingDeparturesMap(stopTimes: List[StopTime]) = {
+  def createUpcomingDeparturesMap(stopTimes: List[StopTime]) = {
     var destinationsToTimesMap: Map[String, Set[Long]] = Map.empty
     stopTimes
       .foreach(
@@ -59,29 +59,31 @@ class ScheduleFinder(dependencies: Dependencies) {
   }
 
   def reduceUpcomingDeparturesMapToFrameText(destinationsToTimesMap: Map[String, Set[Long]]) =
-    destinationsToTimesMap.keys
-      .map(
-        shortHeadSign => {
-          shortHeadSign + ": " + destinationsToTimesMap(shortHeadSign).toList.sorted
-            .map(_.toString)
-            .reduce((acc, str) => s"$acc, $str")
-        }
-      )
-      .toList
-      .reduce(
-        (a, b) => s"$a, $b"
-      )
+    if (destinationsToTimesMap.isEmpty)
+      "There are no upcoming departures from this stop"
+    else
+      destinationsToTimesMap.keys
+        .map(
+          shortHeadSign => {
+            shortHeadSign + ": " + destinationsToTimesMap(shortHeadSign).toList.sorted
+              .take(4)
+              .map(_.toString)
+              .reduce((acc, str) => s"$acc, $str")
+          }
+        )
+        .toList
+        .reduce(
+          (a, b) => s"$a, $b"
+        )
 
   def findSchedule(stationIds: Set[String], walkTime: Long): String = {
     val stopTimes = stopTimeRecs
       .map(_.toStopTime(today, walkTime))
-
     val upcomingStopTimesForThisStop = stopTimes
       .filter(stopTime => isThisStation(stopTime, stationIds))
       .filter(isRunningToday)
       .filter(isUpcomingStopTime)
-
-    reduceUpcomingDeparturesMapToFrameText(upcomingDeparturesMap(upcomingStopTimesForThisStop))
+    reduceUpcomingDeparturesMapToFrameText(createUpcomingDeparturesMap(upcomingStopTimesForThisStop))
   }
 
 }
