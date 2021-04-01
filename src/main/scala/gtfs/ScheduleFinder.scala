@@ -1,16 +1,18 @@
 package gtfs
 
 import gtfs.ScheduleFinder.Dependencies
+import gtfs.Station.{stationHeadSignMap, stationIdMap, Station}
 import gtfs.models.{Calendar, StopTime}
 import gtfs.parser.GtfsFileReader
 
 import java.time.temporal.ChronoUnit
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{LocalDate, LocalDateTime, ZoneId}
 
 class ScheduleFinder(dependencies: Dependencies) {
-  val today          = LocalDate.now()
-  val now            = LocalDateTime.now()
-  val gtfsFileReader = dependencies.gtfsfileReader
+  val etZoneId: ZoneId = ZoneId.of("America/New_York")
+  val today            = LocalDate.now()
+  val now              = LocalDateTime.now(etZoneId)
+  val gtfsFileReader   = dependencies.gtfsfileReader
 
   val stopTimeRecs       = gtfsFileReader.getStopTimes.toList
   val trips              = gtfsFileReader.getTrips.toList
@@ -33,6 +35,15 @@ class ScheduleFinder(dependencies: Dependencies) {
         tripRec => services.getServiceFor(date).contains(tripRec.service_id)
       )
   }
+
+  def isTerminalStop(stopTime: StopTime) =
+    trips
+      .find(_.trip_id == stopTime.trip_id)
+      .fold(false)(
+        tripRec => {
+          stationIdMap(Station.stationHeadSignMap(tripRec.trip_headsign)).contains(stopTime.stop_id)
+        }
+      )
 
   def createUpcomingDeparturesMap(stopTimes: List[StopTime]) = {
     var destinationsToTimesMap: Map[String, Set[Long]] = Map.empty
@@ -76,13 +87,22 @@ class ScheduleFinder(dependencies: Dependencies) {
           (a, b) => s"$a, $b"
         )
 
+  def findSchedule(station: Station, walkTime: Long): String =
+    findSchedule(Station.stationIdMap(station), walkTime)
+
   def findSchedule(stationIds: Set[String], walkTime: Long): String = {
+
+    if (stationIds.isEmpty)
+      return "Error, no stationIDs found for this station"
+
     val stopTimes = stopTimeRecs
       .map(_.toStopTime(today, walkTime))
     val upcomingStopTimesForThisStop = stopTimes
       .filter(stopTime => isThisStation(stopTime, stationIds))
       .filter(isRunningToday)
       .filter(isUpcomingStopTime)
+      .filter(stopTime => { !isTerminalStop(stopTime) })
+
     reduceUpcomingDeparturesMapToFrameText(createUpcomingDeparturesMap(upcomingStopTimesForThisStop))
   }
 

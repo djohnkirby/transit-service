@@ -5,3 +5,16 @@ target/*
 project/target/
 project/target/*
 project/target
+src/test/.DS_Store
+src/test/.DS_Store
+src/test/scala/.DS_Store
+src/.DS_Store
+project/project/target/config-classes/$ea6a55e37f90cc66ea75$.class
+*.cache
+*.class
+src/.DS_Store
+.DS_Store
+src/test/.DS_Store
+src/test/scala/.DS_Store
+src/test/scala/gtfs/parser/.DS_Store
+src/test/scala/gtfs/.DS_Store

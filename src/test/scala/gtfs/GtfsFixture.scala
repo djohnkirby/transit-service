@@ -6,6 +6,15 @@ import java.time.{DayOfWeek, LocalDate, LocalTime}
 
 trait GtfsFixture {
 
+  def generateStopTimeRec(time: LocalTime, stop_id: String, trip_id: String) = StopTimeRec(
+    stop_id = stop_id,
+    trip_id = trip_id,
+    stop_sequence = Some(1),
+    arrival_time = Some(time),
+    departure_time = Some(time),
+    days_from_now = 0
+  )
+
   def generateStopTimeRec(startTime: LocalTime, n: Int) = StopTimeRec(
     stop_id = s"stop$n",
     trip_id = "trip1",

@@ -6,6 +6,8 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import handlers.ApiHandler;
 
+import static java.lang.Long.parseLong;
+
 /**
  * Java entrypoint for the API Gateway Lambda function
  */

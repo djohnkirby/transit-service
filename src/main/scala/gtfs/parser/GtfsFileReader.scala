@@ -1,9 +1,9 @@
 package gtfs.parser
 
-import java.time.{LocalDate, LocalTime}
 import gtfs.models._
 
 import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, LocalTime}
 
 /**
   * Reads GTFS data from .txt files

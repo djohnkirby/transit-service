@@ -39,10 +39,6 @@ object ApiHandler {
 
     //I have a station. I know what time it is. Now I need to find out
     //what trains are leaving soon and where they're going.
-    val stationIds = Station.stationIdMap.get(station).getOrElse(Set.empty)
-
-    if (stationIds.isEmpty)
-      return "Error, no stationIDs found for this station"
 
     val awsCredentials = new BasicAWSCredentials(
       "",
@@ -57,36 +53,36 @@ object ApiHandler {
 
     FileUtils.copyInputStreamToFile(
       amazonS3Client.getObject("transitservice-data", "stop_times.txt").getObjectContent,
-      new File("stop_times.txt")
+      new File("/tmp/stop_times.txt")
     )
 
     FileUtils.copyInputStreamToFile(
       amazonS3Client.getObject("transitservice-data", "stops.txt").getObjectContent,
-      new File("stops.txt")
+      new File("/tmp/stops.txt")
     )
 
     FileUtils.copyInputStreamToFile(
       amazonS3Client.getObject("transitservice-data", "trips.txt").getObjectContent,
-      new File("trips.txt")
+      new File("/tmp/trips.txt")
     )
 
     FileUtils.copyInputStreamToFile(
       amazonS3Client.getObject("transitservice-data", "calendar.txt").getObjectContent,
-      new File("calendar.txt")
+      new File("/tmp/calendar.txt")
     )
 
     FileUtils.copyInputStreamToFile(
       amazonS3Client.getObject("transitservice-data", "calendar_dates.txt").getObjectContent,
-      new File("calendar_dates.txt")
+      new File("/tmp/calendar_dates.txt")
     )
 
     val scheduleFinder = new ScheduleFinder(
       new ScheduleFinder.Dependencies {
-        override val gtfsfileReader: GtfsFileReader = new GtfsFileReader(".")
+        override val gtfsfileReader: GtfsFileReader = new GtfsFileReader("/tmp")
       }
     )
 
-    scheduleFinder.findSchedule(stationIds, walkTime)
+    scheduleFinder.findSchedule(station, walkTime)
   }
 
   case class Response(body: String, headers: Map[String, String], statusCode: Int = 200) {

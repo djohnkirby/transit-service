@@ -1,5 +1,6 @@
 package gtfs
 
+import gtfs.Station.WTC
 import gtfs.parser.GtfsFileReader
 import org.mockito.Mockito._
 import org.scalatest.flatspec.AnyFlatSpec
@@ -78,6 +79,18 @@ class ScheduleFinderSpec extends AnyFlatSpec with GtfsFixture with MockitoSugar 
 
   it should "return false when it's a holiday and this service is not running" in {
     scheduleFinder.isRunningToday(generateStopTimeRecs(10).head.toStopTime(christmas)) shouldBe false
+  }
+
+  behavior of "isTerminalStop"
+
+  it should "successfully identify the terminal stop" in {
+    scheduleFinder.isTerminalStop(
+      generateStopTimeRec(LocalTime.now(), "781715", "trip1").toStopTime(LocalDate.now())
+    ) shouldBe true
+  }
+
+  it should "identify any other stop as nonterminal" in {
+    scheduleFinder.isTerminalStop(generateStopTimeRecs(10).head.toStopTime(LocalDate.now())) shouldBe false
   }
 
   behavior of "scheduleFinder"

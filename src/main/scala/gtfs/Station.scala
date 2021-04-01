@@ -31,4 +31,13 @@ object Station extends Enumeration {
     Newark        -> Set("26733", "781718", "781719", "782490", "782491"),
     Harrison      -> Set("26729", "781720", "781721", "782492", "782493")
   )
+
+  val stationHeadSignMap = Map[String, Station](
+    "33rd via Hoboken"           -> ThirtyThird,
+    "Journal Square via Hoboken" -> JournalSquare,
+    "Hoboken"                    -> Hoboken,
+    "33rd Street"                -> ThirtyThird,
+    "World Trade Center"         -> WTC,
+    "Newark"                     -> Newark
+  )
 }
